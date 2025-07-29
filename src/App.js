@@ -6,6 +6,11 @@ import UserManagement from './components/UserManagement';
 import Notification from './components/Notification';
 import './App.css';
 
+// API base URL - use proxy in development, direct URL in production
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://leaderboard-backend-pjqu.onrender.com'
+  : '';
+
 function App() {
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -21,11 +26,16 @@ function App() {
 
   const fetchAllData = useCallback(async (page = 1) => {
     try {
+      console.log('Fetching data from API...');
       const [usersRes, leaderboardRes, historyRes] = await Promise.all([
-        axios.get('/api/users'),
-        axios.get('/api/leaderboard'),
-        axios.get(`/api/history?page=${page}&limit=10`)
+        axios.get(`${API_BASE_URL}/api/users`),
+        axios.get(`${API_BASE_URL}/api/leaderboard`),
+        axios.get(`${API_BASE_URL}/api/history?page=${page}&limit=10`)
       ]);
+
+      console.log('Users response:', usersRes.data);
+      console.log('Leaderboard response:', leaderboardRes.data);
+      console.log('History response:', historyRes.data);
 
       setUsers(usersRes.data);
       if (usersRes.data.length > 0 && !selectedUserId) {
@@ -41,6 +51,8 @@ function App() {
       });
 
     } catch (err) {
+      console.error('Error fetching data:', err);
+      console.error('Error response:', err.response);
       showNotification('Failed to fetch data. Please refresh.', 'error');
     }
   }, [selectedUserId]);
@@ -48,8 +60,8 @@ function App() {
   const refreshDynamicData = useCallback(async () => {
     try {
       const [leaderboardRes, historyRes] = await Promise.all([
-        axios.get('/api/leaderboard'),
-        axios.get(`/api/history?page=1&limit=10`)
+        axios.get(`${API_BASE_URL}/api/leaderboard`),
+        axios.get(`${API_BASE_URL}/api/history?page=1&limit=10`)
       ]);
       setLeaderboard(leaderboardRes.data);
       setHistory({
@@ -68,8 +80,8 @@ function App() {
 
   const handleAddUser = async (userName) => {
     try {
-      const res = await axios.post('/api/users', { name: userName });
-      const usersRes = await axios.get('/api/users'); // re-fetch users
+      const res = await axios.post(`${API_BASE_URL}/api/users`, { name: userName });
+      const usersRes = await axios.get(`${API_BASE_URL}/api/users`); // re-fetch users
       setUsers(usersRes.data);
       setSelectedUserId(res.data._id);
       showNotification(`User "${userName}" added successfully!`, 'success');
@@ -85,7 +97,7 @@ function App() {
     }
     setLoading(true);
     try {
-      const res = await axios.post('/api/claim', { userId: selectedUserId });
+      const res = await axios.post(`${API_BASE_URL}/api/claim`, { userId: selectedUserId });
       const { updatedUser, pointsClaimed } = res.data;
       showNotification(`Awarded ${pointsClaimed} points to ${updatedUser.name}!`, 'success');
       await refreshDynamicData();
