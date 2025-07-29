@@ -12,7 +12,7 @@ const History = ({ historyData, currentPage, totalPages, onPageChange }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {historyData.length > 0 ? historyData.map((item) => (
+                    {Array.isArray(historyData) && historyData.length > 0 ? historyData.map((item) => (
                         <tr key={item._id}>
                             <td>{item.userId ? item.userId.name : 'N/A'}</td>
                             <td>{item.pointsClaimed}</td>

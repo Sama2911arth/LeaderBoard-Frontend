@@ -11,7 +11,7 @@ const Leaderboard = ({ leaderboard }) => {
                 </tr>
             </thead>
             <tbody>
-                {leaderboard.map((user) => (
+                {Array.isArray(leaderboard) && leaderboard.map((user) => (
                     <tr key={user._id}>
                         <td className="rank">{user.rank}</td>
                         <td>{user.name}</td>

@@ -27,20 +27,24 @@ function App() {
         axios.get(`/api/history?page=${page}&limit=10`)
       ]);
 
-      setUsers(usersRes.data);
-      if (usersRes.data.length > 0 && !selectedUserId) {
+      setUsers(usersRes.data || []);
+      if (usersRes.data && usersRes.data.length > 0 && !selectedUserId) {
         setSelectedUserId(usersRes.data[0]._id);
       }
 
-      setLeaderboard(leaderboardRes.data);
+      setLeaderboard(leaderboardRes.data || []);
 
       setHistory({
-        items: historyRes.data.history,
-        page: historyRes.data.currentPage,
-        totalPages: historyRes.data.totalPages
+        items: historyRes.data?.history || [],
+        page: historyRes.data?.currentPage || 1,
+        totalPages: historyRes.data?.totalPages || 1
       });
 
     } catch (err) {
+      console.error('Error fetching data:', err);
+      setUsers([]);
+      setLeaderboard([]);
+      setHistory({ items: [], page: 1, totalPages: 1 });
       showNotification('Failed to fetch data. Please refresh.', 'error');
     }
   }, [selectedUserId]);
@@ -51,13 +55,14 @@ function App() {
         axios.get('/api/leaderboard'),
         axios.get(`/api/history?page=1&limit=10`)
       ]);
-      setLeaderboard(leaderboardRes.data);
+      setLeaderboard(leaderboardRes.data || []);
       setHistory({
-        items: historyRes.data.history,
-        page: historyRes.data.currentPage,
-        totalPages: historyRes.data.totalPages
+        items: historyRes.data?.history || [],
+        page: historyRes.data?.currentPage || 1,
+        totalPages: historyRes.data?.totalPages || 1
       });
     } catch (err) {
+      console.error('Error refreshing data:', err);
       showNotification('Failed to refresh data.', 'error');
     }
   }, []);
@@ -70,10 +75,11 @@ function App() {
     try {
       const res = await axios.post('/api/users', { name: userName });
       const usersRes = await axios.get('/api/users'); // re-fetch users
-      setUsers(usersRes.data);
+      setUsers(usersRes.data || []);
       setSelectedUserId(res.data._id);
       showNotification(`User "${userName}" added successfully!`, 'success');
     } catch (err) {
+      console.error('Error adding user:', err);
       showNotification(err.response?.data?.message || 'Failed to add user.', 'error');
     }
   };

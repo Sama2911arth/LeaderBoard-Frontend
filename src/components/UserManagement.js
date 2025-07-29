@@ -17,7 +17,7 @@ const UserManagement = ({ users, selectedUserId, onSelectUser, onAddUser, onClai
             <div className="user-actions">
                 <select value={selectedUserId} onChange={(e) => onSelectUser(e.target.value)} disabled={loading}>
                     <option value="" disabled>-- Select a user --</option>
-                    {users.map((user) => (
+                    {Array.isArray(users) && users.map((user) => (
                         <option key={user._id} value={user._id}>
                             {user.name}
                         </option>
