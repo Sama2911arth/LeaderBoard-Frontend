@@ -7,9 +7,11 @@ import Notification from './components/Notification';
 import './App.css';
 
 // API base URL - use proxy in development, direct URL in production
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://leaderboard-backend-pjqu.onrender.com'
-  : '';
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? ''
+  : 'https://leaderboard-backend-pjqu.onrender.com';
+
+console.log('API Base URL:', API_BASE_URL);
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -27,6 +29,8 @@ function App() {
   const fetchAllData = useCallback(async (page = 1) => {
     try {
       console.log('Fetching data from API...');
+      console.log('Making request to:', `${API_BASE_URL}/api/users`);
+
       const [usersRes, leaderboardRes, historyRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/users`),
         axios.get(`${API_BASE_URL}/api/leaderboard`),
